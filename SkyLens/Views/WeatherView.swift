@@ -84,12 +84,20 @@ struct WeatherView: View {
 
     private var citySelector: some View {
         Menu {
-            Picker("City", selection: $viewModel.selectedCity) {
-                ForEach(City.allCases) { city in
-                    Text(city.displayName).tag(city)
+            ForEach(City.allCases) { city in
+                Button(city.displayName) {
+                    // First launch the task
+                    Task { @MainActor in
+                        // Apply animation inside the task
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            // Set loading state immediately for better UX
+                            viewModel.state = .loading
+                        }
+                        // Then fetch the weather
+                        await viewModel.selectCity(city)
+                    }
                 }
             }
-            .pickerStyle(.inline)
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: "location.fill")
@@ -109,17 +117,18 @@ struct WeatherView: View {
             .background(.ultraThinMaterial, in: Capsule())
             .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
         }
-        .onChange(of: viewModel.selectedCity) {
-            withAnimation(.easeInOut(duration: 0.3)) {
-                viewModel.changeCity(viewModel.selectedCity)
-            }
-        }
     }
 
     private var unitToggleButton: some View {
         Button(action: {
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                viewModel.toggleUnit()
+            Task { @MainActor in
+                // Apply animation inside the task
+                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                    // Set loading state immediately for better UX
+                    viewModel.state = .loading
+                }
+                // Then fetch with the new unit
+                await viewModel.toggleUnitAndFetch()
             }
         }) {
             Text(viewModel.unitSymbol)
@@ -243,7 +252,10 @@ struct WeatherView: View {
     private var lastUpdatedSection: some View {
         VStack(spacing: 12) {
             Button(action: {
-                Task {
+                Task { @MainActor in
+                    withAnimation {
+                        viewModel.state = .loading
+                    }
                     await viewModel.fetchWeather()
                 }
             }) {
@@ -299,7 +311,10 @@ struct WeatherView: View {
                 .padding(.horizontal, 20)
 
             Button(action: {
-                Task {
+                Task { @MainActor in
+                    withAnimation {
+                        viewModel.state = .loading
+                    }
                     await viewModel.fetchWeather()
                 }
             }) {

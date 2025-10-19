@@ -47,31 +47,22 @@ class WeatherViewModel: ObservableObject {
         }
     }
 
-    func changeCity(_ city: City) {
+    // Combined method to select city and fetch weather in one operation
+    func selectCity(_ city: City) async {
         guard city != selectedCity else {
             return
         }
 
         selectedCity = city
         storageService.saveLastSelectedCity(city)
-        Task { [weak self] in
-            guard let self = self else {
-                return
-            }
-            await self.fetchWeather()
-        }
+        await fetchWeather()
     }
 
-    func toggleUnit() {
+    func toggleUnitAndFetch() async {
         let newUnit: TemperatureUnit = preferredUnit == .metric ? .imperial : .metric
         preferredUnit = newUnit
         storageService.savePreferredUnit(newUnit)
-        Task { [weak self] in
-            guard let self = self else {
-                return
-            }
-            await self.fetchWeather()
-        }
+        await fetchWeather()
     }
 
     // MARK: - Accessor methods
