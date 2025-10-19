@@ -9,6 +9,8 @@ import SwiftUI
 
 @main
 struct SkyLensApp: App {
+    @Environment(\.scenePhase) private var scenePhase
+
     var body: some Scene {
         WindowGroup {
             ContentView()

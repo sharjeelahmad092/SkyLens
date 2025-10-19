@@ -23,19 +23,59 @@ final class SkyLensUITests: XCTestCase {
     }
 
     @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
+    func testWeatherTabNavigationAndBasicFlow() throws {
         let app = XCUIApplication()
         app.launch()
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        // Verify we're on the Weather tab
+        let weatherTab = app.tabBars.buttons["Weather"]
+        XCTAssertTrue(weatherTab.exists)
+
+        // Wait for content to load (give network time)
+        let exists = NSPredicate(format: "exists == true")
+        let refreshButton = app.buttons["Refresh"]
+        expectation(for: exists, evaluatedWith: refreshButton, handler: nil)
+        waitForExpectations(timeout: 5, handler: nil)
+
+        // Navigate to Contact tab
+        app.tabBars.buttons["Contact"].tap()
+
+        // Verify Contact form elements
+        XCTAssertTrue(app.navigationBars["Contact Us"].exists)
+        XCTAssertTrue(app.textFields["Name"].exists)
+        XCTAssertTrue(app.textFields["Email"].exists)
+        XCTAssertTrue(app.textFields["Phone"].exists)
+        XCTAssertTrue(app.buttons["Submit"].exists)
+
+        // Go back to weather tab
+        weatherTab.tap()
+        XCTAssertTrue(app.navigationBars["Weather"].exists)
+    }
+
+    @MainActor
+    func testContactFormValidation() throws {
+        let app = XCUIApplication()
+        app.launch()
+
+        // Navigate to Contact tab
+        app.tabBars.buttons["Contact"].tap()
+
+        // Try to submit empty form
+        let submitButton = app.buttons["Submit"]
+        submitButton.tap()
+
+        // Should show validation errors
+        let nameError = app.staticTexts["Name cannot be empty"]
+        XCTAssertTrue(nameError.waitForExistence(timeout: 2))
     }
 
     @MainActor
     func testLaunchPerformance() throws {
-        // This measures how long it takes to launch your application.
-        measure(metrics: [XCTApplicationLaunchMetric()]) {
-            XCUIApplication().launch()
+        if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
+            // This measures how long it takes to launch your application.
+            measure(metrics: [XCTApplicationLaunchMetric()]) {
+                XCUIApplication().launch()
+            }
         }
     }
 }
