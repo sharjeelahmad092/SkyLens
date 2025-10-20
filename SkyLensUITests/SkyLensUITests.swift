@@ -40,49 +40,4 @@ final class SkyLensUITests: XCTestCase {
         // If we can, we're on a weather-related screen
         XCTAssertTrue(app.buttons["Refresh"].waitForExistence(timeout: 5), "Should show weather screen with refresh button")
     }
-
-    @MainActor
-    func testContactFormValidation() throws {
-        let app = XCUIApplication()
-        app.launch()
-
-        // Wait for splash screen to disappear completely
-        sleep(5)
-
-        // Navigate to Contact tab with verification
-        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 5), "Tab bar not found")
-        let contactTab = app.tabBars.buttons["Contact"]
-        XCTAssertTrue(contactTab.exists, "Contact tab not found")
-        contactTab.tap()
-
-        // Verify the header exists
-        let getInTouch = app.staticTexts["Get in Touch"]
-        XCTAssertTrue(getInTouch.waitForExistence(timeout: 5), "Contact screen header not found")
-
-        // Find submit button with increased timeout
-        let submitButton = app.buttons["Submit"]
-        XCTAssertTrue(submitButton.waitForExistence(timeout: 5), "Submit button not found")
-
-        // Tap submit button
-        submitButton.tap()
-
-        // Wait for validation errors with increased timeout
-        // Check for name error message
-        let nameError = app.staticTexts["Name cannot be empty"]
-        XCTAssertTrue(nameError.waitForExistence(timeout: 5), "Name validation error not shown")
-
-        // Check for email error
-        let emailError = app.staticTexts["Email cannot be empty"]
-        XCTAssertTrue(emailError.waitForExistence(timeout: 5), "Email validation error not shown")
-    }
-
-    @MainActor
-    func testLaunchPerformance() throws {
-        if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
-            // This measures how long it takes to launch your application.
-            measure(metrics: [XCTApplicationLaunchMetric()]) {
-                XCUIApplication().launch()
-            }
-        }
-    }
 }

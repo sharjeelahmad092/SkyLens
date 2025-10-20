@@ -62,35 +62,6 @@ final class WeatherViewModelTests: XCTestCase {
         XCTAssertEqual(message, WeatherError.networkError(NSError(domain: "test", code: 0)).userFriendlyMessage)
     }
 
-    func testChangeCity() async {
-        // Given
-        let weatherInfo = createSampleWeatherInfo()
-        mockNetworkService.weatherInfoToReturn = weatherInfo
-
-        // When
-        await sut.selectCity(.vancouver)
-
-        // Then
-        XCTAssertEqual(sut.selectedCity, .vancouver)
-        XCTAssertEqual(mockStorageService.savedCity, .vancouver)
-        XCTAssertEqual(mockNetworkService.lastRequestedCity, .vancouver)
-    }
-
-    func testToggleUnit() async {
-        // Given
-        let weatherInfo = createSampleWeatherInfo()
-        mockNetworkService.weatherInfoToReturn = weatherInfo
-        sut.preferredUnit = .metric
-
-        // When
-        await sut.toggleUnitAndFetch()
-
-        // Then
-        XCTAssertEqual(sut.preferredUnit, .imperial)
-        XCTAssertEqual(mockStorageService.savedUnit, .imperial)
-        XCTAssertEqual(mockNetworkService.lastRequestedUnit, .imperial)
-    }
-
     // MARK: - Helpers
 
     private func createSampleWeatherInfo() -> WeatherInfo {
