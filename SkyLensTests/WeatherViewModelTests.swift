@@ -1,3 +1,10 @@
+//
+//  WeatherViewModelTests.swift
+//  SkyLensTests
+//
+//  Created by Sharjeel Ahmad on 2025-10-18.
+//
+
 import XCTest
 @testable import SkyLens
 
@@ -61,15 +68,11 @@ final class WeatherViewModelTests: XCTestCase {
         mockNetworkService.weatherInfoToReturn = weatherInfo
 
         // When
-        sut.changeCity(.vancouver)
+        await sut.selectCity(.vancouver)
 
         // Then
         XCTAssertEqual(sut.selectedCity, .vancouver)
         XCTAssertEqual(mockStorageService.savedCity, .vancouver)
-
-        // Wait a bit for the task to complete
-        try? await Task.sleep(nanoseconds: 100_000_000)
-
         XCTAssertEqual(mockNetworkService.lastRequestedCity, .vancouver)
     }
 
@@ -80,15 +83,11 @@ final class WeatherViewModelTests: XCTestCase {
         sut.preferredUnit = .metric
 
         // When
-        sut.toggleUnit()
+        await sut.toggleUnitAndFetch()
 
         // Then
         XCTAssertEqual(sut.preferredUnit, .imperial)
         XCTAssertEqual(mockStorageService.savedUnit, .imperial)
-
-        // Wait a bit for the task to complete
-        try? await Task.sleep(nanoseconds: 100_000_000)
-
         XCTAssertEqual(mockNetworkService.lastRequestedUnit, .imperial)
     }
 
@@ -102,7 +101,8 @@ final class WeatherViewModelTests: XCTestCase {
             feelsLike: 27.0,
             lastUpdated: Date(),
             weatherCode: 32,
-            unit: .metric
+            unit: .metric,
+            imageBaseUrl: "https://icons.twnmm.com/wx_icons/v2/"
         )
     }
 }

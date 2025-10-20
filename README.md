@@ -1,15 +1,21 @@
 # SkyLens
 
-SkyLens is a universal iOS app built with SwiftUI and MVVM that displays weather information for selected Canadian
-cities. It demonstrates clean architecture, async/await networking, and test-driven development.
+<p align="center">
+  <img src="SkyLens/Assets.xcassets/AppIcon.appiconset/AppIcon1024x1024.png" width="120" alt="SkyLens Logo">
+</p>
+
+<p align="center">
+SkyLens is a universal iOS weather app built with SwiftUI and MVVM architecture that provides current weather information for selected Canadian cities.
+</p>
 
 ## Features
 
-- Display current weather conditions for 5 Canadian cities
-- Toggle between metric and imperial units
-- Contact form with validation
-- Universal app (works on iPhone and iPad)
-- Clean MVVM architecture with protocol-based services
+- **Real-time Weather Data**: Display current weather conditions for 5 Canadian cities
+- **Unit Switching**: Toggle between Celsius (°C) and Fahrenheit (°F)
+- **Dynamic UI**: Background color adapts to temperature
+- **Contact Form**: Form with field validation for user feedback
+- **Universal App**: Responsive design works on both iPhone and iPad
+- **Modern UI**: Glass-morphism design with smooth animations
 
 ## Requirements
 
@@ -56,8 +62,8 @@ test class or method.
 
 The app uses the following weather API endpoints:
 
-- Metric: `https://weatherapi.pelmorex.com/api/v1/observation/placecode/[CITY_CODE]?unit=metric`
-- Imperial: `https://weatherapi.pelmorex.com/api/v1/observation/placecode/[CITY_CODE]?unit=imperial`
+- **Metric**: `https://weatherapi.pelmorex.com/api/v1/observation/placecode/[CITY_CODE]?unit=metric`
+- **Imperial**: `https://weatherapi.pelmorex.com/api/v1/observation/placecode/[CITY_CODE]?unit=imperial`
 
 Supported city codes:
 
@@ -85,3 +91,83 @@ Supported city codes:
 - Contact form submission is simulated (no actual backend integration)
 - Error handling is basic but user-friendly
 - Focus is on architectural correctness rather than UI polish
+
+## Modern Swift Features
+
+- **Async/await**: For clean, structured concurrency
+- **@MainActor**: For proper UI thread management
+- **Combine**: For reactive programming with @Published properties
+
+## Protocol-First Design
+
+```swift
+protocol NetworkService {
+    func fetchWeather(for city: City, unit: TemperatureUnit) async throws -> WeatherInfo
+}
+```
+
+## Error Handling
+
+```swift
+enum WeatherError: Error {
+    case networkError(Error)
+    case decodingError(Error)
+    case invalidResponse
+    case invalidURL
+    
+    var userFriendlyMessage: String { ... }
+}
+```
+
+## State Management
+
+```swift
+enum ViewState {
+    case loading
+    case loaded
+    case error(String)
+}
+```
+
+## API Information
+
+The app uses the Weather Network API with the following endpoints:
+
+- **Metric**: `https://weatherapi.pelmorex.com/api/v1/observation/placecode/[CITY_CODE]?unit=metric`
+- **Imperial**: `https://weatherapi.pelmorex.com/api/v1/observation/placecode/[CITY_CODE]?unit=imperial`
+
+### Supported Cities
+
+| City      | Code     |
+|-----------|----------|
+| Toronto   | CAON0696 |
+| Montreal  | CAON0423 |
+| Ottawa    | CAON0512 |
+| Vancouver | CABC0308 |
+| Calgary   | CAAB0049 |
+
+## Design Decisions
+
+### Minimalist Persistence
+
+- UserDefaults for storing user preferences (last selected city and unit)
+- No complex database setup needed for this scope
+
+### Efficient Networking
+
+- Built-in URLCache for HTTP response caching
+- No additional caching layer to keep the design simple
+
+### UI Approach
+
+- Glass-morphism design for a modern look
+- Dynamic backgrounds that respond to temperature
+- Responsive layouts for all device sizes
+
+## Future Improvements
+
+- Weather forecast (multiple days)
+- Location-based weather detection
+- More detailed weather information (wind, humidity, etc.)
+- Dark mode theme optimization
+- Localization for multiple languages

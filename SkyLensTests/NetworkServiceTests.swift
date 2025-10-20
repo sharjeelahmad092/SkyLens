@@ -1,3 +1,10 @@
+//
+//  NetworkServiceTests.swift
+//  SkyLensTests
+//
+//  Created by Sharjeel Ahmad on 2025-10-18.
+//
+
 import XCTest
 @testable import SkyLens
 
@@ -22,12 +29,44 @@ final class NetworkServiceTests: XCTestCase {
         let validJSON = """
                         {
                             "observation": {
-                                "name": "Toronto",
-                                "condition": "Partly Cloudy",
-                                "weatherCode": 32,
+                                "time": {
+                                    "local": "2023-10-18T14:30:00",
+                                    "utc": "2023-10-18T14:30:00Z"
+                                },
+                                "weatherCode": {
+                                    "value": "-BKNN",
+                                    "icon": 32,
+                                    "text": "Partly Cloudy",
+                                    "bgimage": "clearnight",
+                                    "overlay": "clear-night"
+                                },
                                 "temperature": 22.5,
-                                "temperatureFeelsLike": 23.0,
-                                "observationDateTime": "2023-10-18T14:30:00Z"
+                                "feelsLike": 23.0,
+                                "dewPoint": 12.0,
+                                "wind": {
+                                    "direction": "E",
+                                    "speed": 17,
+                                    "gust": 26
+                                },
+                                "relativeHumidity": 68,
+                                "pressure": {
+                                    "value": 100.7,
+                                    "trendKey": 1
+                                },
+                                "visibility": 24,
+                                "ceiling": 7900
+                            },
+                            "display": {
+                                "imageUrl": "https://icons.twnmm.com/wx_icons/v2/",
+                                "unit": {
+                                    "temperature": "C",
+                                    "dewPoint": "C",
+                                    "wind": "km/h",
+                                    "relativeHumidity": "%",
+                                    "pressure": "kPa",
+                                    "visibility": "km",
+                                    "ceiling": "m"
+                                }
                             }
                         }
                         """
@@ -45,6 +84,7 @@ final class NetworkServiceTests: XCTestCase {
         XCTAssertEqual(weatherInfo.feelsLike, 23.0, accuracy: 0.001)
         XCTAssertEqual(weatherInfo.weatherCode, 32)
         XCTAssertEqual(weatherInfo.unit, .metric)
+        XCTAssertEqual(weatherInfo.imageBaseUrl, "https://icons.twnmm.com/wx_icons/v2/")
 
         // Also verify the URL was constructed correctly
         XCTAssertNotNil(mockURLSession.lastURL)

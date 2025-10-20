@@ -1,3 +1,10 @@
+//
+//  Weather.swift
+//  SkyLens
+//
+//  Created by Sharjeel Ahmad on 2025-10-18.
+//
+
 import Foundation
 
 // MARK: - API Response Models

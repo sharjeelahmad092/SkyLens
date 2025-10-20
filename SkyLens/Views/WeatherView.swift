@@ -1,3 +1,10 @@
+//
+//  WeatherView.swift
+//  SkyLens
+//
+//  Created by Sharjeel Ahmad on 2025-10-18.
+//
+
 import SwiftUI
 
 struct WeatherView: View {
@@ -54,19 +61,54 @@ struct WeatherView: View {
     }
 
     // MARK: - Background Colors
+    // Cache for maintaining background colors during loading
+    @State private var lastStableColors: [Color] = [Color.blue, Color.indigo]
+
     private var backgroundColors: [Color] {
-        switch viewModel.temperatureValue {
-        case 30...:
-            return [Color.red, Color.orange]
-        case 20..<30:
-            return [Color.orange, Color.yellow]
-        case 10..<20:
-            return [Color.blue, Color.cyan]
-        case ..<10:
-            return [Color.indigo, Color.purple]
-        default:
-            return [Color.blue, Color.indigo]
+        // If we're in loading state, use the last stable colors to prevent flickering
+        if case .loading = viewModel.state {
+            return lastStableColors
         }
+
+        // Calculate new colors based on current temperature and unit
+        let newColors: [Color] = {
+            if viewModel.preferredUnit == .metric {
+                // Celsius thresholds
+                switch viewModel.temperatureValue {
+                case 30...:
+                    return [Color.red, Color.orange]
+                case 20..<30:
+                    return [Color.orange, Color.yellow]
+                case 10..<20:
+                    return [Color.blue, Color.cyan]
+                case ..<10:
+                    return [Color.indigo, Color.purple]
+                default:
+                    return [Color.blue, Color.indigo]
+                }
+            } else {
+                // Fahrenheit thresholds
+                switch viewModel.temperatureValue {
+                case 86...:
+                    return [Color.red, Color.orange]     // 30°C in °F
+                case 68..<86:
+                    return [Color.orange, Color.yellow]  // 20-30°C in °F
+                case 50..<68:
+                    return [Color.blue, Color.cyan]      // 10-20°C in °F
+                case ..<50:
+                    return [Color.indigo, Color.purple]  // Below 10°C in °F
+                default:
+                    return [Color.blue, Color.indigo]
+                }
+            }
+        }()
+
+        // When stable, update the cached colors
+        if case .loaded = viewModel.state {
+            lastStableColors = newColors
+        }
+
+        return newColors
     }
 
     // MARK: - Header Section
@@ -86,15 +128,18 @@ struct WeatherView: View {
         Menu {
             ForEach(City.allCases) { city in
                 Button(city.displayName) {
-                    // First launch the task
                     Task { @MainActor in
-                        // Apply animation inside the task
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            // Set loading state immediately for better UX
-                            viewModel.state = .loading
-                        }
-                        // Then fetch the weather
+                        // First update city in the ViewModel but maintain loading state
+                        // to keep consistent colors during transition
+                        viewModel.state = .loading
+
+                        // Then fetch the weather for the new city
                         await viewModel.selectCity(city)
+
+                        // Apply animation to the state change after data is loaded
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            // State will already be .loaded from the selectCity() call
+                        }
                     }
                 }
             }
@@ -122,13 +167,17 @@ struct WeatherView: View {
     private var unitToggleButton: some View {
         Button(action: {
             Task { @MainActor in
-                // Apply animation inside the task
-                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                    // Set loading state immediately for better UX
-                    viewModel.state = .loading
-                }
-                // Then fetch with the new unit
+                // First update unit in the ViewModel but maintain loading state
+                // to keep consistent colors during transition
+                viewModel.state = .loading
+
+                // Then fetch with the new unit with animation applied to state changes
                 await viewModel.toggleUnitAndFetch()
+
+                // Apply animation to the state change after data is loaded
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    // State will already be .loaded from the toggleUnitAndFetch() call
+                }
             }
         }) {
             Text(viewModel.unitSymbol)
@@ -253,10 +302,16 @@ struct WeatherView: View {
         VStack(spacing: 12) {
             Button(action: {
                 Task { @MainActor in
-                    withAnimation {
-                        viewModel.state = .loading
-                    }
+                    // First set loading state
+                    viewModel.state = .loading
+
+                    // Then fetch the weather
                     await viewModel.fetchWeather()
+
+                    // Apply animation to the state change after data is loaded
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        // State will already be .loaded from fetchWeather()
+                    }
                 }
             }) {
                 HStack(spacing: 8) {
@@ -312,10 +367,16 @@ struct WeatherView: View {
 
             Button(action: {
                 Task { @MainActor in
-                    withAnimation {
-                        viewModel.state = .loading
-                    }
+                    // First set loading state
+                    viewModel.state = .loading
+
+                    // Then fetch the weather
                     await viewModel.fetchWeather()
+
+                    // Apply animation to the state change after data is loaded
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        // State will already be .loaded from fetchWeather()
+                    }
                 }
             }) {
                 Text("Try Again")
